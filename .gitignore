@@ -1,0 +1,11 @@
+node_modules
+dist
+.agent-browser
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+BRIEF.md
+SUMMARY.md
+bun.lock

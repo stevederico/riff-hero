@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <title>Rockstar Hero</title>
+    <meta name="description" content="A five lane rhythm game. Hit the notes, build combos, and keep the crowd on your side. Three original songs, all synthesized in your browser." />
+    <meta name="theme-color" content="#0a0616" />
+    <link rel="canonical" href="https://rockstar-hero.grok.me/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://rockstar-hero.grok.me/" />
+    <meta property="og:title" content="Rockstar Hero" />
+    <meta property="og:description" content="A five lane rhythm game with three original songs, synthesized in your browser." />
+    <meta property="og:image" content="https://rockstar-hero.grok.me/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Rockstar Hero title screen with the set list" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Rockstar Hero" />
+    <meta name="twitter:description" content="A five lane rhythm game with three original songs, synthesized in your browser." />
+    <meta name="twitter:image" content="https://rockstar-hero.grok.me/og-image.png" />
+    <meta name="apple-mobile-web-app-title" content="Rockstar Hero" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0616'/%3E%3Cellipse cx='32' cy='38' rx='22' ry='11' fill='%23ff4f9a'/%3E%3Cellipse cx='32' cy='32' rx='22' ry='11' fill='%23ff4f9a' stroke='%23fff' stroke-width='3'/%3E%3Cellipse cx='32' cy='32' rx='9' ry='4.5' fill='%23fff'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="stage" aria-label="Note highway"></canvas>
+
+    <div id="play-controls" hidden>
+      <button id="pause-button" class="icon-button" type="button" aria-label="Pause">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" /><rect x="14" y="4" width="5" height="16" rx="1.5" /></svg>
+      </button>
+      <button id="surge-button" type="button" aria-label="Activate Surge" hidden></button>
+      <p id="banner" role="status" aria-live="polite"></p>
+    </div>
+
+    <main id="screens">
+      <section id="screen-title" class="screen" aria-labelledby="game-title">
+        <header class="masthead">
+          <h1 id="game-title" class="logo"><span>Rockstar</span><span>Hero</span></h1>
+          <p class="tagline">Hit the notes. Feed the crowd. Own the stage.</p>
+        </header>
+        <h2 class="section-label">Set List</h2>
+        <ul id="song-list" class="song-list"></ul>
+        <nav class="menu-row" aria-label="Help and settings">
+          <button id="how-button" class="ghost-button" type="button">How To Play</button>
+          <button id="settings-button" class="ghost-button" type="button">Settings</button>
+        </nav>
+        <p id="controls-hint" class="hint"></p>
+      </section>
+
+      <section id="screen-pause" class="screen screen-center" aria-labelledby="pause-title" hidden>
+        <div class="panel">
+          <h2 id="pause-title" class="panel-title">Paused</h2>
+          <p id="pause-song" class="panel-sub"></p>
+          <div class="field">
+            <label for="pause-offset-input">Audio Offset <output id="pause-offset-output" for="pause-offset-input"></output></label>
+            <input id="pause-offset-input" class="offset-input" type="range" min="-200" max="200" step="10" />
+            <p class="hint">Notes early? Slide right. Late? Slide left.</p>
+          </div>
+          <div class="button-stack">
+            <button id="resume-button" class="primary-button" type="button">Resume</button>
+            <button id="restart-button" class="ghost-button" type="button">Restart Song</button>
+            <button id="quit-button" class="ghost-button" type="button">Set List</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-results" class="screen screen-center" aria-labelledby="results-title" hidden>
+        <div class="panel">
+          <p id="results-kicker" class="kicker"></p>
+          <h2 id="results-title" class="panel-title"></h2>
+          <p id="results-song" class="panel-sub"></p>
+          <div id="results-stars" class="stars" role="img"></div>
+          <p id="results-score" class="big-score"></p>
+          <p id="results-best" class="best-badge" hidden>New Best</p>
+          <dl id="results-stats" class="stats"></dl>
+          <div class="button-stack">
+            <button id="again-button" class="primary-button" type="button">Play Again</button>
+            <button id="share-button" class="ghost-button" type="button">Share Score</button>
+            <button id="back-button" class="ghost-button" type="button">Set List</button>
+          </div>
+          <p id="share-status" class="hint" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+
+    <div id="countdown" aria-hidden="true" hidden></div>
+
+    <dialog id="how-dialog" aria-labelledby="how-title">
+      <h2 id="how-title" class="panel-title">How To Play</h2>
+      <ol class="how-list">
+        <li>Notes roll down five lanes. Hit each one as it crosses the strike line.</li>
+        <li><strong>Keyboard:</strong> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>F</kbd> <kbd>G</kbd> or <kbd>1</kbd> to <kbd>5</kbd>. <strong>Phone:</strong> tap the lanes.</li>
+        <li>Notes with a tail are sustains. Hold until the tail ends for bonus points.</li>
+        <li>Every 10 notes in a row raises your multiplier, up to x4. A miss resets it.</li>
+        <li>Hit every starred note in a phrase to charge Surge. Fill it halfway, then press <kbd>Space</kbd> or tap the Surge meter to double your multiplier.</li>
+        <li>Misses drain the crowd meter. If it empties, the show is over.</li>
+      </ol>
+      <form method="dialog"><button class="primary-button" type="submit">Got It</button></form>
+    </dialog>
+
+    <dialog id="settings-dialog" aria-labelledby="settings-title">
+      <h2 id="settings-title" class="panel-title">Settings</h2>
+      <div class="field">
+        <label for="volume-input">Volume <output id="volume-output" for="volume-input"></output></label>
+        <input id="volume-input" type="range" min="0" max="100" step="5" />
+      </div>
+      <div class="field">
+        <label for="offset-input">Audio Offset <output id="offset-output" for="offset-input"></output></label>
+        <input id="offset-input" class="offset-input" type="range" min="-200" max="200" step="10" />
+        <p class="hint">Raise this if notes reach the line before you hear them, which is common with wireless speakers.</p>
+      </div>
+      <form method="dialog"><button class="primary-button" type="submit">Done</button></form>
+    </dialog>
+
+    <noscript>Rockstar Hero needs JavaScript to play.</noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
